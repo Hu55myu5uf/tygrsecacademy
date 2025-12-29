@@ -7,8 +7,9 @@ import asyncio
 
 from database.connection import get_db
 from models.user import User
-from models.labs import Lab, LabInstance, LabInstanceStatus
+from models.labs import Lab, LabInstance, LabInstanceStatus, LabType
 from services.lab_manager import lab_manager
+from services.guacamole_manager import guacamole_manager
 from auth.rbac import get_current_user
 
 router = APIRouter()
@@ -57,8 +58,10 @@ async def get_lab_details(
         "content": lab.content,  # Contains markdown instructions
         "difficulty": lab.difficulty,
         "category": lab.category,
-        "time_limit": 60, # Default or from DB
-        "objectives": [] # Can be expanded with real objectives table
+        "time_limit": 60,  # Default or from DB
+        "objectives": [],  # Can be expanded with real objectives table
+        "lab_type": lab.lab_type,
+        "guacamole_url": lab.guacamole_url
     }
 
 @router.post("/{lab_id}/start", response_model=dict)
@@ -73,15 +76,27 @@ async def start_lab(
     if not lab:
         raise HTTPException(status_code=404, detail="Lab not found")
 
-    # 2. Start Instance via Manager
+    # 2. Start Instance via appropriate Manager based on lab type
     try:
-        instance = lab_manager.start_lab(db, current_user.id, lab_id)
-        return {
-            "instance_id": instance.id,
-            "status": instance.status,
-            "container_id": instance.container_id,
-            "message": "Lab started successfully"
-        }
+        if lab.lab_type == LabType.GUACAMOLE or lab.lab_type == "guacamole":
+            instance = guacamole_manager.start_lab(db, current_user.id, lab_id)
+            guac_url = guacamole_manager.get_guacamole_url(lab)
+            return {
+                "instance_id": instance.id,
+                "status": instance.status,
+                "lab_type": "guacamole",
+                "guacamole_url": guac_url,
+                "message": "Guacamole lab started successfully"
+            }
+        else:
+            instance = lab_manager.start_lab(db, current_user.id, lab_id)
+            return {
+                "instance_id": instance.id,
+                "status": instance.status,
+                "container_id": instance.container_id,
+                "lab_type": "terminal",
+                "message": "Lab started successfully"
+            }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

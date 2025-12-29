@@ -1,0 +1,30 @@
+# Guacamole User Mapping Configuration
+# This file defines connections available in Guacamole
+
+# Authorization
+<user-mapping>
+    
+    <!-- Default user for TygrSecAcademy labs -->
+    <authorize username="tygr" password="tygrsec123">
+        
+        <!-- DVWA Web Application (direct browser access) -->
+        <connection name="DVWA Web App">
+            <protocol>vnc</protocol>
+            <param name="hostname">kali-vnc</param>
+            <param name="port">5901</param>
+            <param name="password">tygrsec123</param>
+        </connection>
+
+        <!-- Kali Desktop via VNC -->
+        <connection name="Kali Attack Machine">
+            <protocol>vnc</protocol>
+            <param name="hostname">kali-vnc</param>
+            <param name="port">5901</param>
+            <param name="password">tygrsec123</param>
+            <param name="color-depth">24</param>
+            <param name="cursor">remote</param>
+        </connection>
+
+    </authorize>
+
+</user-mapping>

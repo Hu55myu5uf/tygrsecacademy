@@ -1,15 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Play, Square, RefreshCw, Terminal as TerminalIcon, AlertTriangle } from 'lucide-react';
+import { Play, Square, RefreshCw, Terminal as TerminalIcon, AlertTriangle, Monitor } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { labService } from '../../services/api';
 import LabTerminal from '../../components/LabTerminal';
+import GuacamoleViewer from '../../components/GuacamoleViewer';
 import AITutor from '../../components/AITutor';
 
 interface LabInstance {
     instance_id: number;
     status: string;
     container_id?: string;
+    lab_type?: string;
+    guacamole_url?: string;
 }
 
 interface LabDetails {
@@ -19,6 +22,8 @@ interface LabDetails {
     content: string;
     difficulty: string;
     estimated_minutes: number;
+    lab_type?: string;
+    guacamole_url?: string;
 }
 
 export default function LabEnvironment() {
@@ -144,17 +149,33 @@ export default function LabEnvironment() {
                 </div>
             </div>
 
-            {/* Terminal Area */}
+            {/* Terminal/Desktop Area */}
             <div className="flex-1 bg-black p-4 relative">
                 {isTerminalActive && instance ? (
-                    <LabTerminal instanceId={instance.instance_id} />
+                    // Render based on lab type
+                    instance.lab_type === 'guacamole' ? (
+                        <GuacamoleViewer
+                            guacamoleUrl={instance.guacamole_url || 'http://localhost:8085/guacamole'}
+                            instanceId={instance.instance_id}
+                        />
+                    ) : (
+                        <LabTerminal instanceId={instance.instance_id} />
+                    )
                 ) : (
                     <div className="h-full flex flex-col items-center justify-center text-gray-500">
-                        <TerminalIcon className="w-16 h-16 mb-4 opacity-20" />
-                        <h2 className="text-xl font-bold mb-2">Terminal Offline</h2>
+                        {lab.lab_type === 'guacamole' ? (
+                            <Monitor className="w-16 h-16 mb-4 opacity-20" />
+                        ) : (
+                            <TerminalIcon className="w-16 h-16 mb-4 opacity-20" />
+                        )}
+                        <h2 className="text-xl font-bold mb-2">
+                            {lab.lab_type === 'guacamole' ? 'Desktop Offline' : 'Terminal Offline'}
+                        </h2>
                         <p className="max-w-md text-center">
-                            Start the lab instance to access the secure terminal environment.
-                            Tools will be pre-installed and ready to use.
+                            {lab.lab_type === 'guacamole'
+                                ? 'Start the lab to access a full Kali Linux desktop with DVWA target.'
+                                : 'Start the lab instance to access the secure terminal environment.'
+                            }
                         </p>
                     </div>
                 )}

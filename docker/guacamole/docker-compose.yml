@@ -1,0 +1,37 @@
+# DVWA Lab Environment - Lightweight Version
+# Access DVWA directly via browser, no VNC needed
+
+services:
+  # DVWA - Damn Vulnerable Web Application
+  dvwa:
+    image: vulnerables/web-dvwa:latest
+    container_name: tygr_dvwa
+    restart: unless-stopped
+    ports:
+      - "8086:80"
+    depends_on:
+      - dvwa-db
+    networks:
+      - tygr_lab_network
+
+  # MySQL for DVWA
+  dvwa-db:
+    image: mariadb:10.5
+    container_name: tygr_dvwa_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: dvwa
+      MYSQL_USER: dvwa
+      MYSQL_PASSWORD: p@ssw0rd
+    volumes:
+      - dvwa_mysql_data:/var/lib/mysql
+    networks:
+      - tygr_lab_network
+
+networks:
+  tygr_lab_network:
+    driver: bridge
+
+volumes:
+  dvwa_mysql_data:

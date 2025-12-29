@@ -11,6 +11,10 @@ class LabDifficulty(str, enum.Enum):
     INTERMEDIATE = "intermediate"
     ADVANCED = "advanced"
 
+class LabType(str, enum.Enum):
+    TERMINAL = "terminal"  # WebSocket-based terminal (Alpine, etc.)
+    GUACAMOLE = "guacamole"  # VNC/RDP via Apache Guacamole
+
 class LabInstanceStatus(str, enum.Enum):
     STARTING = "starting"
     RUNNING = "running"
@@ -26,10 +30,15 @@ class Lab(Base):
     docker_image = Column(String, nullable=False)  # e.g., "tygrsec/lab-basic-01"
     difficulty = Column(String, default=LabDifficulty.BEGINNER)
     category = Column(String, default="General")
-    content = Column(String, nullable=True) # Markdown instructions
+    content = Column(String, nullable=True)  # Markdown instructions
     estimated_minutes = Column(Integer, default=30)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Lab Type fields
+    lab_type = Column(String, default=LabType.TERMINAL)  # terminal or guacamole
+    guacamole_url = Column(String, nullable=True)  # URL to Guacamole connection (for guacamole type)
+    compose_file = Column(String, nullable=True)  # Path to docker-compose.yml for complex labs
 
     # Relationships
     instances = relationship("LabInstance", back_populates="lab")
