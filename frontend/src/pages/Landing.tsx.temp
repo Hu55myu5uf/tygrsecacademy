@@ -1,0 +1,221 @@
+```
+import { Link } from 'react-router-dom';
+import { Shield, Brain, Target, Award, Users, Zap } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
+
+export default function Landing() {
+    const { isAuthenticated, user } = useAuth();
+    const { isAuthenticated, user } = useAuth();
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-cyber-darker via-cyber-dark to-cyber-darker">
+            {/* Header */}
+            <header className="fixed top-0 w-full bg-cyber-dark/80 backdrop-blur-lg border-b border-gray-700 z-50">
+                <div className="container mx-auto px-6 py-4 flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                        <Shield className="w-8 h-8 text-cyber-accent" />
+                        <span className="text-2xl font-bold gradient-text">TygrSecAcademy</span>
+                    </div>
+                    {!isAuthenticated ? (
+                        <div className="flex gap-4">
+                            <Link to="/login" className="btn btn-secondary">
+                                Login
+                            </Link>
+                            <Link to="/register" className="btn btn-primary glow-primary">
+                                Get Started
+                            </Link>
+                        </div>
+                    ) : (
+                        <div className="flex items-center gap-4">
+                            <span className="text-gray-300">Welcome, {user?.first_name || user?.username}!</span>
+                            <Link to="/student/dashboard" className="btn btn-primary">Go to Dashboard</Link>
+                        </div>
+                    )}
+                </div>
+            </header>
+
+            {/* Hero Section */}
+            <section className="pt-32 pb-20 px-6">
+                <div className="container mx-auto text-center">
+                    <div className="inline-flex items-center gap-2 bg-primary-500/10 border border-primary-500/30 rounded-full px-4 py-2 mb-8">
+                        <Zap className="w-4 h-4 text-cyber-accent" />
+                        <span className="text-sm text-primary-300">AI-Powered Cybersecurity Learning</span>
+                    </div>
+
+                    <h1 className="text-6xl md:text-7xl font-bold mb-6">
+                        <span className="gradient-text">Zero to Hero</span>
+                        <br />
+                        Cybersecurity Journey
+                    </h1>
+
+                    <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-12">
+                        Master cybersecurity with AI-assisted learning, hands-on labs, and real-world
+                        challenges. From foundations to advanced offensive security.
+                    </p>
+
+                    <div className="flex flex-wrap justify-center gap-4">
+                        <Link to="/register" className="btn btn-primary btn-lg glow-primary text-lg px-8 py-4">
+                            Start Learning Free
+                        </Link>
+                        <Link to="/login" className="btn btn-outline text-lg px-8 py-4">
+                            View Curriculum
+                        </Link>
+                    </div>
+
+                    {/* Stats */}
+                    <div className="grid grid-cols-3 gap-8 mt-20 max-w-3xl mx-auto">
+                        <div className="card card-hover text-center">
+                            <div className="text-4xl font-bold text-cyber-accent mb-2">50+</div>
+                            <div className="text-gray-400">Hands-on Labs</div>
+                        </div>
+                        <div className="card card-hover text-center">
+                            <div className="text-4xl font-bold text-cyber-accent mb-2">100+</div>
+                            <div className="text-gray-400">CTF Challenges</div>
+                        </div>
+                        <div className="card card-hover text-center">
+                            <div className="text-4xl font-bold text-cyber-accent mb-2">24/7</div>
+                            <div className="text-gray-400">AI Tutor</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Features */}
+            <section className="py-20 px-6 bg-cyber-dark/50">
+                <div className="container mx-auto">
+                    <h2 className="text-4xl font-bold text-center mb-16">
+                        <span className="gradient-text">Why TygrSecAcademy?</span>
+                    </h2>
+
+                    <div className="grid md:grid-cols-3 gap-8">
+                        <FeatureCard
+                            icon={<Brain className="w-12 h-12 text-cyber-accent" />}
+                            title="AI-Powered Learning"
+                            description="Context-aware AI tutor guides you through lessons, labs, and challenges with personalized feedback and hints."
+                        />
+                        <FeatureCard
+                            icon={<Target className="w-12 h-12 text-primary-500" />}
+                            title="Hands-on Labs"
+                            description="Practice in real isolated environments. Learn by doing with Docker-based labs and browser terminals."
+                        />
+                        <FeatureCard
+                            icon={<Award className="w-12 h-12 text-purple-500" />}
+                            title="CTF Challenges"
+                            description="Test your skills with progressive CTF challenges from easy to insane. Compete on the leaderboard."
+                        />
+                        <FeatureCard
+                            icon={<Users className="w-12 h-12 text-green-500" />}
+                            title="Expert Supervision"
+                            description="Get feedback from experienced tutors on your capstone projects and progress."
+                        />
+                        <FeatureCard
+                            icon={<Shield className="w-12 h-12 text-blue-500" />}
+                            title="Structured Path"
+                            description="5-tier curriculum from foundations to mastery. Clear progression from beginner to advanced."
+                        />
+                        <FeatureCard
+                            icon={<Zap className="w-12 h-12 text-yellow-500" />}
+                            title="Publish & Share"
+                            description="Showcase your capstone projects on the internal blog and share achievements externally."
+                        />
+                    </div>
+                </div>
+            </section>
+
+            {/* Curriculum Tiers */}
+            <section className="py-20 px-6">
+                <div className="container mx-auto">
+                    <h2 className="text-4xl font-bold text-center mb-16">
+                        <span className="gradient-text">5-Tier Learning Path</span>
+                    </h2>
+
+                    <div className="space-y-4 max-w-4xl mx-auto">
+                        <TierCard
+                            tier="0"
+                            title="Foundations"
+                            topics={['Linux Basics', 'Networking', 'Python', 'AI Fundamentals']}
+                            color="bg-blue-500"
+                        />
+                        <TierCard
+                            tier="1"
+                            title="AI in Cybersecurity"
+                            topics={['ML for Network Security', 'LLMs for SOC', 'AI for Secure Coding']}
+                            color="bg-purple-500"
+                        />
+                        <TierCard
+                            tier="2"
+                            title="Hands-on Labs"
+                            topics={['Incident Response', 'Threat Intelligence', 'Web Security Labs']}
+                            color="bg-cyan-500"
+                        />
+                        <TierCard
+                            tier="3"
+                            title="CTF Challenges"
+                            topics={['OSINT', 'Malware Analysis', 'Adversarial ML', 'Leaderboards']}
+                            color="bg-green-500"
+                        />
+                        <TierCard
+                            tier="4"
+                            title="Mastery & Publishing"
+                            topics={['Capstone Projects', 'Tutor Supervision', 'Blog Publishing']}
+                            color="bg-yellow-500"
+                        />
+                    </div>
+                </div>
+            </section>
+
+            {/* CTA */}
+            <section className="py-20 px-6 bg-gradient-to-r from-primary-600/20 to-purple-600/20 border-y border-primary-500/30">
+                <div className="container mx-auto text-center">
+                    <h2 className="text-4xl font-bold mb-6">Ready to Become a Cybersecurity Expert?</h2>
+                    <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+                        Join TygrSecAcademy today and start your journey from zero to hero with AI-powered learning.
+                    </p>
+                    <Link to="/register" className="btn btn-primary btn-lg glow-primary text-lg px-8 py-4">
+                        Start Your Free Account
+                    </Link>
+                </div>
+            </section>
+
+            {/* Footer */}
+            <footer className="py-12 px-6 bg-cyber-darker border-t border-gray-700">
+                <div className="container mx-auto text-center text-gray-400">
+                    <div className="flex items-center justify-center gap-2 mb-4">
+                        <Shield className="w-6 h-6 text-cyber-accent" />
+                        <span className="text-xl font-bold text-white">TygrSecAcademy</span>
+                    </div>
+                    <p>© 2024 TygrSecAcademy. All rights reserved.</p>
+                    <p className="mt-2 text-sm">Professional Cybersecurity Education Platform</p>
+                </div>
+            </footer>
+        </div>
+    );
+}
+
+function FeatureCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
+    return (
+        <div className="card card-hover p-8 text-center">
+            <div className="flex justify-center mb-4">{icon}</div>
+            <h3 className="text-xl font-bold mb-3">{title}</h3>
+            <p className="text-gray-400">{description}</p>
+        </div>
+    );
+}
+
+function TierCard({ tier, title, topics, color }: { tier: string; title: string; topics: string[]; color: string }) {
+    return (
+        <Link to="/login" state={{ from: `/ tiers / ${ tier } ` }} className="card card-hover p-6 flex items-center gap-6 group transition-all">
+            <div className={`${ color } w - 16 h - 16 rounded - lg flex items - center justify - center text - 2xl font - bold shrink - 0 group - hover: scale - 110 transition - transform`}>
+                {tier}
+            </div>
+            <div className="flex-1">
+                <h3 className="text-xl font-bold mb-2 group-hover:text-primary-400 transition-colors">Tier {tier}: {title}</h3>
+                <div className="flex flex-wrap gap-2">
+                    {topics.map((topic, idx) => (
+                        <span key={idx} className="badge badge-primary">{topic}</span>
+                    ))}
+                </div>
+            </div>
+        </Link>
+    );
+}

@@ -1,0 +1,95 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: tygrsec-postgres
+    environment:
+      POSTGRES_DB: tygrsecacademy
+      POSTGRES_USER: tygrsec
+      POSTGRES_PASSWORD: tygrsec_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U tygrsec" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - tygrsec-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: tygrsec-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - tygrsec-network
+
+  # FastAPI Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: tygrsec-backend
+    environment:
+      - DATABASE_URL=postgresql://tygrsec:tygrsec_password@postgres:5432/tygrsecacademy
+      - REDIS_URL=redis://redis:6379/0
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - ./uploads:/app/uploads
+      - /var/run/docker.sock:/var/run/docker.sock # For lab container management
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - tygrsec-network
+      - tygrsec-lab-network
+    restart: unless-stopped
+
+  # React Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: tygrsec-frontend
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - tygrsec-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  tygrsec-network:
+    driver: bridge
+  tygrsec-lab-network:
+    driver: bridge
+    name: tygrsec-lab-network

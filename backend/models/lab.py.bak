@@ -1,0 +1,135 @@
+"""
+Lab Models
+Database models for hands-on labs and student lab instances
+"""
+from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime, ForeignKey, Enum as SQLEnum, JSON
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
+from database.connection import Base
+import enum
+
+
+class LabEnvironmentType(str, enum.Enum):
+    """Lab environment type enumeration"""
+    DOCKER = "docker"  # Docker-based isolated environment
+    BROWSER_TERMINAL = "browser_terminal"  # Browser-based terminal
+    EXTERNAL = "external"  # External platform integration
+
+
+class LabStatus(str, enum.Enum):
+    """Lab instance status"""
+    NOT_STARTED = "not_started"
+    IN_PROGRESS = "in_progress"
+    COMPLETED = "completed"
+    ABANDONED = "abandoned"
+
+
+class Lab(Base):
+    """Lab definition"""
+    __tablename__ = "labs"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    module_id = Column(Integer, ForeignKey("modules.id"), nullable=False)
+    
+    title = Column(String(300), nullable=False)
+    description = Column(Text)
+    
+    # Environment configuration
+    environment_type = Column(SQLEnum(LabEnvironmentType), nullable=False)
+    docker_image = Column(String(200))  # Docker image name if DOCKER type
+    initial_commands = Column(Text)  # Commands to run on lab start
+    
+    # Instructions
+    instructions_markdown = Column(Text, nullable=False)
+    
+    # Objectives and validation
+    objectives = Column(JSON)  # List of learning objectives
+    validation_steps = Column(JSON)  # Steps to validate completion
+    
+    # Difficulty and time
+    difficulty = Column(String(50))
+    estimated_minutes = Column(Integer)
+    
+    # Scoring
+    max_score = Column(Integer, default=100)
+    hint_penalty_percent = Column(Integer, default=10)  # Penalty per hint
+    
+    # Status
+    is_published = Column(Boolean, default=False, nullable=False)
+    
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    
+    def __repr__(self):
+        return f"<Lab(id={self.id}, title='{self.title}')>"
+
+
+class LabInstance(Base):
+    """Student's lab instance"""
+    __tablename__ = "lab_instances"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    lab_id = Column(Integer, ForeignKey("labs.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    
+    # Status
+    status = Column(SQLEnum(LabStatus), default=LabStatus.IN_PROGRESS, nullable=False)
+    
+    # Environment details
+    container_id = Column(String(100))  # Docker container ID if applicable
+    session_token = Column(String(200))  # Unique session token
+    
+    # Progress
+    score = Column(Integer, default=100)  # Starts at max, decreases with hints
+    hints_used = Column(Integer, default=0)
+    actions_count = Column(Integer, default=0)
+    
+    # Timing
+    started_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    completed_at = Column(DateTime(timezone=True))
+    last_activity_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    # Relationships
+    user = relationship("User", back_populates="lab_instances")
+    
+    def __repr__(self):
+        return f"<LabInstance(id={self.id}, user_id={self.user_id}, status='{self.status}')>"
+
+
+class LabAction(Base):
+    """Student actions within a lab"""
+    __tablename__ = "lab_actions"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    lab_instance_id = Column(Integer, ForeignKey("lab_instances.id"), nullable=False)
+    
+    action_type = Column(String(50), nullable=False)  # command, file_edit, api_call, etc.
+    action_data = Column(JSON)  # Details of the action
+    
+    # AI analysis
+    ai_feedback = Column(Text)  # AI-generated feedback
+    is_correct = Column(Boolean)  # Whether action was correct/helpful
+    
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    def __repr__(self):
+        return f"<LabAction(id={self.id}, type='{self.action_type}')>"
+
+
+class LabHint(Base):
+    """Hints provided to students during labs"""
+    __tablename__ = "lab_hints"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    lab_id = Column(Integer, ForeignKey("labs.id"), nullable=False)
+    
+    hint_level = Column(Integer, nullable=False)  # 1=gentle, 2=specific, 3=direct
+    hint_text = Column(Text, nullable=False)
+    score_penalty = Column(Integer, nullable=False)  # Percentage penalty
+    
+    order = Column(Integer, nullable=False)
+    
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    def __repr__(self):
+        return f"<LabHint(lab_id={self.lab_id}, level={self.hint_level})>"
