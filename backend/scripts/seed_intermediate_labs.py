@@ -25,11 +25,11 @@ def seed_intermediate_labs():
             "difficulty": LabDifficulty.INTERMEDIATE,
             "category": "Web Security",
             "estimated_minutes": 90,
-            "lab_type": LabType.GUACAMOLE,
-            "guacamole_url": "http://localhost:8085/guacamole",
+            "lab_type": LabType.GUACAMOLE,  # Using guacamole type for iframe-based labs
+            "guacamole_url": "http://localhost:8087",  # Direct Juice Shop URL
             "compose_file": os.path.abspath(os.path.join(
                 os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 
-                "docker", "pentest-lab", "docker-compose.yml"
+                "docker", "juice-shop", "docker-compose.yml"
             )),
             "content": """
 # OWASP Juice Shop Challenges
@@ -37,14 +37,10 @@ def seed_intermediate_labs():
 ## Introduction
 OWASP Juice Shop is the most modern and sophisticated insecure web application. It contains over **100 security challenges** of varying difficulty.
 
-## Environment
-- **Kali Linux** - Attack machine via VNC
-- **Juice Shop** - Target at `http://pentest_juice_shop:3000`
-
-## Access via Guacamole
-1. Login: `tygr` / `tygrsec123`
-2. Click **"Kali Attack Machine"**
-3. Open Firefox: `firefox http://pentest_juice_shop:3000`
+## Getting Started
+1. After starting the lab, Juice Shop opens in an iframe
+2. Explore the application - it's a fake e-commerce site
+3. Access the **Score Board** at `/score-board` to track challenges
 
 ## Challenge Categories
 
@@ -80,24 +76,23 @@ admin@juice-sh.op'--
 ### 4. Sensitive Data Exposure ⭐
 **Challenge:** Find the hidden Score Board
 
-Hint: Try accessing `/score-board` directly or search the page source for clues.
+Hint: Try accessing `/score-board` directly or search the page source.
 
 ### 5. Broken Authentication ⭐⭐⭐
 **Challenge:** Reset Jim's password
 
 1. Go to Forgot Password
 2. Enter Jim's email: `jim@juice-sh.op`
-3. Find the security question answer (check Star Trek references!)
+3. Find the security question answer (Star Trek reference!)
 
 ## Tools to Use
-- **Burp Suite** - Intercept and modify requests
-- **Browser DevTools** - Inspect network traffic and DOM
-- **SQLMap** - Automated SQL injection
+- **Browser DevTools** (F12) - Inspect network traffic and DOM
+- **Burp Suite** (if installed) - Intercept and modify requests
 
 ## Scoring
 Access the Score Board at `/score-board` to track your progress!
 
-> **Tip:** The Juice Shop has a built-in tutorial for each challenge. Click the light bulb icon for hints.
+> **Tip:** Click the light bulb icon for hints on each challenge.
 """
         }
 

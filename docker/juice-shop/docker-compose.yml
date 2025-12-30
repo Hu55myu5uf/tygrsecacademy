@@ -1,0 +1,16 @@
+# OWASP Juice Shop Lab Environment
+# Access Juice Shop directly via browser, no VNC needed
+
+services:
+  juice-shop:
+    image: bkimminich/juice-shop:latest
+    container_name: tygr_juice_shop
+    restart: unless-stopped
+    ports:
+      - "8087:3000"
+    networks:
+      - tygr_juiceshop_network
+
+networks:
+  tygr_juiceshop_network:
+    driver: bridge
