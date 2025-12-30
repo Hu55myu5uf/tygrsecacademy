@@ -1,0 +1,16 @@
+# bWAPP Lab Environment
+# Access bWAPP directly via browser, no VNC needed
+
+services:
+  bwapp:
+    image: raesene/bwapp:latest
+    container_name: tygr_bwapp
+    restart: unless-stopped
+    ports:
+      - "8088:80"
+    networks:
+      - tygr_bwapp_network
+
+networks:
+  tygr_bwapp_network:
+    driver: bridge

