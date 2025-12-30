@@ -1,40 +1,16 @@
 # bWAPP Lab Environment
-# Access bWAPP directly via browser, no VNC needed
+# Using hackersploit/bwapp-docker which includes MySQL
 
 services:
   bwapp:
-    image: raesene/bwapp:latest
+    image: hackersploit/bwapp-docker
     container_name: tygr_bwapp
     restart: unless-stopped
     ports:
       - "8088:80"
-    depends_on:
-      - bwapp-db
-    environment:
-      - MYSQL_HOST=bwapp-db
-      - MYSQL_DATABASE=bWAPP
-      - MYSQL_USER=bwapp
-      - MYSQL_PASSWORD=bwapp
-    networks:
-      - tygr_bwapp_network
-
-  bwapp-db:
-    image: mysql:5.7
-    container_name: tygr_bwapp_db
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: bWAPP
-      MYSQL_USER: bwapp
-      MYSQL_PASSWORD: bwapp
-    volumes:
-      - bwapp_mysql_data:/var/lib/mysql
     networks:
       - tygr_bwapp_network
 
 networks:
   tygr_bwapp_network:
     driver: bridge
-
-volumes:
-  bwapp_mysql_data:
