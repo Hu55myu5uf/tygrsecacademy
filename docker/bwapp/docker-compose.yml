@@ -1,16 +1,19 @@
-# bWAPP Lab Environment
-# Using hackersploit/bwapp-docker which includes MySQL
+# OWASP WebGoat Lab Environment
+# WebGoat is a self-contained vulnerable web app - no external DB needed
 
 services:
-  bwapp:
-    image: hackersploit/bwapp-docker
-    container_name: tygr_bwapp
+  webgoat:
+    image: webgoat/webgoat:latest
+    container_name: tygr_webgoat
     restart: unless-stopped
     ports:
-      - "8088:80"
+      - "8088:8080"
+      - "9090:9090"
+    environment:
+      - TZ=Europe/London
     networks:
-      - tygr_bwapp_network
+      - tygr_webgoat_network
 
 networks:
-  tygr_bwapp_network:
+  tygr_webgoat_network:
     driver: bridge
